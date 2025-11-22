@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryHub - Home</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
+h1, h2 { text-align: center; }
+button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; background: #007bff; color: white; }
+button:hover { background: #0056b3; }
+.category-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.category-card { padding: 10px 15px; background: #eee; border-radius: 5px; }
+.story-list, #winnerContainer { max-width: 800px; margin: auto; display: flex; flex-direction: column; gap: 15px; }
+.story-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+body {
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2); /* soft gradient from light gray to blue */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
+  margin: 0 10px;
+}
+
+button {
+  padding: 12px 25px;
+  background-color: #ff9800;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #e68900;
+}
+</style>
+<style>
+.monthly-winner-card-overlay {
+  position: relative;
+  max-width: 400px;
+  margin: 20px auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.monthly-winner-card-overlay img {
+  width: 100%;
+  display: block;
+}
+
+.story-info {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255, 248, 225, 0.85);
+  padding: 15px;
+}
+
+.story-info h2 {
+  color: #ff9800;
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="logo">StoryHub</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="Stories.html">Stories</a></li>
+        <li><a href="Leaderboard.html">Leaderboard</a></li>
+        <li><a href="Submit Story.html">Submit Story</a></li>
+    </ul>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <h1>Share Your Story With The World</h1>
+    <p>Write. Inspire. Compete. The most loved story wins monthly and gets animated on YouTube.</p>
+    <a href="Submit Story.html"><button>Submit Your Story</button></a>
+</section>
+
+<!-- Categories -->
+<section class="categories">
+    <h2>Popular Categories</h2>
+    <div class="categories">
+  <a href="Stories.html?category=Horror">Horror</a>
+  <a href="Stories.html?category=Love">Love</a>
+  <a href="Stories.html?category=Comedy">Comedy</a>
+  <a href="Stories.html?category=Motivation">Motivation</a>
+  <a href="Stories.html?category=Fantasy">Fantasy</a>
+  <a href="Stories.html?category=Real%20Life">Real Life</a>
+</div>
+
+<style>
+.categories a {
+  display: inline-block;
+  margin: 5px 10px;
+  padding: 8px 15px;
+  background-color: #ff9800;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.categories a:hover {
+  background-color: #e68900;
+}
+</style>
+
+</section>
+
+<script>
+// Load stories
+let stories = JSON.parse(localStorage.getItem("stories")) || [];
+
+// --- Monthly Winner ---
+function showMonthlyWinner() {
+    if(stories.length === 0){
+        document.getElementById("winnerContainer").innerHTML = "<p>No stories submitted yet.</p>";
+        return;
+    }
+    let now = new Date();
+    let currentMonth = now.getMonth();
+    let currentYear = now.getFullYear();
+    let monthlyStories = stories.filter(story => {
+        let date = new Date(story.timestamp || Date.now());
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    });
+
+    if(monthlyStories.length === 0){
+        document.getElementById("winnerContainer").innerHTML = "<p>No stories submitted this month yet.</p>";
+        return;
+    }
+
+    monthlyStories.forEach(s => {
+        s.totalReactions = (s.likes||0) + (s.loves||0) + (s.laughs||0) + (s.cries||0);
+    });
+
+    let winner = monthlyStories.reduce((prev, current) => current.totalReactions > prev.totalReactions ? current : prev);
+
+    document.getElementById("winnerContainer").innerHTML = `
+        <div class="story-card">
+            <h3>${winner.title}</h3>
+            <p>${winner.story.substring(0,120)}...</p>
+            <p><strong>Author:</strong> ${winner.author}</p>
+            <p><strong>Total Reactions:</strong> ${winner.totalReactions}</p>
+            <button onclick="window.location.href='story.html?id=${stories.indexOf(winner)}'">Read Story</button>
+        </div>
+    `;
+}
+
+// --- Top Stories ---
+function loadTopStories() {
+    let container = document.getElementById("topStories");
+    if(stories.length === 0){
+        container.innerHTML = "<p>No stories submitted yet.</p>";
+        return;
+    }
+
+    let latest = stories.slice(-3).reverse(); // latest 3 stories
+    container.innerHTML = "";
+
+    latest.forEach((story, index) => {
+        let realIndex = stories.length - 1 - index;
+        container.innerHTML += `
+            <div class="story-card">
+                <h3>${story.title}</h3>
+                <p>${story.story.substring(0,100)}...</p>
+                <p><strong>Category:</strong> ${story.category}</p>
+                <button onclick="window.location.href='story.html?id=${realIndex}'">Read Story</button>
+            </div>
+        `;
+    });
+}
+
+// Call functions
+showMonthlyWinner();
+loadTopStories();
+</script>
+<script src="script.js"></script>
+
+
+</body>
+</html>

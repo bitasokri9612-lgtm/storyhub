@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Details - StoryHub</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 40px; }
+    .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    h1 { margin-bottom: 5px; }
+    .meta { color: grey; margin-bottom: 15px; }
+    .reaction-buttons { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+    button { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 16px; background: #ddd; }
+    button:hover { background: #ccc; }
+    .counts { margin-top: 20px; font-size: 18px; }
+    #commentsSection { margin-top: 30px; }
+    #commentsSection h3 { margin-bottom: 10px; }
+    #commentsList { margin-top: 10px; border-top: 1px solid #ccc; padding-top: 10px; }
+    .comment { margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
+    input, textarea { width: 100%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="title">Story Title</h1>
+    <div class="meta" id="meta"></div>
+    <p id="content"></p>
+
+    <!-- Reaction buttons -->
+    <div class="reaction-buttons">
+        <button onclick="react('likes')">👍 Like</button>
+        <button onclick="react('loves')">❤️ Love</button>
+        <button onclick="react('dislikes')">👎 Dislike</button>
+        <button onclick="react('laughs')">😂 Laugh</button>
+        <button onclick="react('cries')">😢 Cry</button>
+    </div>
+
+    <!-- Reaction counts -->
+    <div class="counts">
+        Likes: <span id="likesCount">0</span><br>
+        Loves: <span id="lovesCount">0</span><br>
+        Dislikes: <span id="dislikesCount">0</span><br>
+        Laughs: <span id="laughsCount">0</span><br>
+        Cries: <span id="criesCount">0</span>
+    </div>
+
+    <!-- Comments Section -->
+    <div id="commentsSection">
+        <h3>Comments</h3>
+        <input type="text" id="commentAuthor" placeholder="Your name">
+        <textarea id="commentText" rows="3" placeholder="Write your comment..."></textarea>
+        <button onclick="addComment()">Submit Comment</button>
+
+        <div id="commentsList"></div>
+    </div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const storyId = urlParams.get("id");
+
+let stories = JSON.parse(localStorage.getItem("stories")) || [];
+
+if(!stories[storyId]){
+    document.body.innerHTML = "<h2>Story not found!</h2>";
+} else {
+    let story = stories[storyId];
+
+    ['likes','loves','dislikes','laughs','cries','comments'].forEach(f => {
+        if(story[f] === undefined) story[f] = 0;
+    });
+    if(!story.commentsList) story.commentsList = [];
+
+    document.getElementById("title").innerText = story.title;
+    document.getElementById("meta").innerText = `By ${story.author} • Category: ${story.category}`;
+    document.getElementById("content").innerText = story.story;
+
+    function updateCounts(){
+        document.getElementById("likesCount").innerText = story.likes;
+        document.getElementById("lovesCount").innerText = story.loves;
+        document.getElementById("dislikesCount").innerText = story.dislikes;
+        document.getElementById("laughsCount").innerText = story.laughs;
+        document.getElementById("criesCount").innerText = story.cries;
+    }
+    updateCounts();
+
+    window.react = function(type){
+        story[type]++;
+        localStorage.setItem("stories", JSON.stringify(stories));
+        updateCounts();
+    }
+
+    // --- Comments System ---
+    function displayComments(){
+        let container = document.getElementById("commentsList");
+        if(story.commentsList.length === 0){
+            container.innerHTML = "<p>No comments yet.</p>";
+            return;
+        }
+        container.innerHTML = "";
+        story.commentsList.forEach(c=>{
+            container.innerHTML += `<div class="comment"><strong>${c.author}</strong> (${new Date(c.timestamp).toLocaleString()}):<br>${c.text}</div>`;
+        });
+    }
+
+    window.addComment = function(){
+        let author = document.getElementById("commentAuthor").value.trim();
+        let text = document.getElementById("commentText").value.trim();
+        if(!author || !text){
+            alert("Please enter your name and comment.");
+            return;
+        }
+        story.commentsList.push({author,text,timestamp: Date.now()});
+        localStorage.setItem("stories", JSON.stringify(stories));
+        document.getElementById("commentAuthor").value = "";
+        document.getElementById("commentText").value = "";
+        displayComments();
+    }
+
+    displayComments();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f4ff;
+  }
+
+  /* Grid container for multiple stories */
+  .stories-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* Square story card (smaller) */
+  .story-card {
+    width: 200px;
+    height: 200px;
+    background: #ffffff;
+    border-radius: 15px;
+    border: 2px solid #e2e2ff;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 12px;
+    margin: auto;
+
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.12);
+    transition: 0.3s ease;
+  }
+
+  .story-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 8px 15px rgba(0,0,0,0.18);
+  }
+
+  /* Profile picture (smaller) */
+  .profile-pic {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #6a5acd;
+  }
+
+  .story-card h3 {
+    font-size: 16px;
+    margin: 4px 0;
+    text-align: center;
+  }
+
+  .story-short {
+    font-size: 12px;
+    color: #444;
+    text-align: center;
+  }
+
+  .category {
+    font-size: 12px;
+    color: #777;
+  }
+
+  .read-btn {
+    background: #6a5acd;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .read-btn:hover {
+    background: #5949b8;
+  }
+</style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Stories - StoryHub</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .story-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .story-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 8px 15px;
+            margin-top: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+        }
+body {
+  background-color: #f0f8ff; /* Light blue, change as you like */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+</style>
+
+    </style>
+</head>
+<body>
+
+<h1>All Stories</h1>
+
+<!-- Filters Section -->
+<div class="filters">
+    <input type="text" id="searchInput" placeholder="Search stories...">
+    
+    <select id="categoryFilter">
+        <option value="All">All Categories</option>
+        <option value="Horror">Horror</option>
+        <option value="Love">Love</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Motivation">Motivation</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Real Life">Real Life</option>
+    </select>
+
+    <select id="sortFilter">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="liked">Most Liked</option>
+        <option value="loved">Most Loved</option>
+    </select>
+</div>
+
+<!-- Story List -->
+<div class="story-list" id="storyList"></div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <button onclick="prevPage()">Prev</button>
+    <button onclick="nextPage()">Next</button>
+</div>
+
+<script>
+    let stories = JSON.parse(localStorage.getItem("stories")) || [];
+    let currentPage = 1;
+    const perPage = 5;
+
+    function loadStories() {
+        let filtered = [...stories];
+
+        // Search
+        let search = document.getElementById("searchInput").value.toLowerCase();
+        filtered = filtered.filter(s => 
+            s.title.toLowerCase().includes(search) ||
+            s.author.toLowerCase().includes(search) ||
+            s.category.toLowerCase().includes(search)
+        );
+
+        // Category
+        let cat = document.getElementById("categoryFilter").value;
+        if (cat !== "All") {
+            filtered = filtered.filter(s => s.category === cat);
+        }
+
+        // Sort
+        let sort = document.getElementById("sortFilter").value;
+        if (sort === "newest") filtered.reverse();
+        if (sort === "liked") filtered.sort((a,b) => b.likes - a.likes);
+        if (sort === "loved") filtered.sort((a,b) => b.loves - a.loves);
+
+        // Pagination
+        let start = (currentPage - 1) * perPage;
+        let end = start + perPage;
+        let display = filtered.slice(start, end);
+
+        // Render
+        let container = document.getElementById("storyList");
+        container.innerHTML = "";
+
+        if (display.length === 0) {
+            container.innerHTML = "<p>No stories found.</p>";
+            return;
+        }
+
+        display.forEach((story, index) => {
+            let realIndex = stories.indexOf(story);
+            container.innerHTML += `
+                <div class="story-card">
+                    <h2>${story.title}</h2>
+                    <p>${story.story.substring(0, 120)}...</p>
+                    <p><strong>Category:</strong> ${story.category}</p>
+                    <button onclick="openStory(${realIndex})">Read Story</button>
+                </div>
+            `;
+        });
+    }
+
+    function openStory(id) {
+        window.location.href = "story.html?id=" + id;
+    }
+
+    function nextPage() {
+        currentPage++;
+        loadStories();
+    }
+
+    function prevPage() {
+        if (currentPage > 1) currentPage--;
+        loadStories();
+    }
+    
+
+    // Reload when filters change
+    document.getElementById("searchInput").oninput = loadStories;
+    document.getElementById("categoryFilter").onchange = loadStories;
+    document.getElementById("sortFilter").onchange = loadStories;
+
+    loadStories();
+</script>
+
+</body>
+</html>

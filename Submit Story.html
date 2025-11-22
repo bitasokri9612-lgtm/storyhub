@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Story - StoryHub</title>
+
+    <style>
+      input[type="text"],
+      input[type="file"],
+      textarea,
+      select {
+        width: 90%;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: 2px solid #6a5acd; /* Purple border */
+        background-color: #f3f0ff; /* Light purple background */
+        color: #1a0033; /* Dark purple text */
+        font-size: 16px;
+      }
+
+      textarea {
+        height: 150px;
+        resize: none;
+      }
+
+      button {
+        background-color: #6a5acd; /* Purple button */
+        color: white;
+        font-size: 18px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #5949b8;
+      }
+    </style>
+</head>
+<body>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Story - StoryHub</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+    button:hover { background: #0056b3; }
+body {
+  background: linear-gradient(135deg, #c3ecff, #d6a4ff); /* blue to purple gradient */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 30px;
+}
+
+input, select, textarea {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 10px 0 20px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+textarea {
+  height: 150px;
+  resize: vertical;
+}
+
+button {
+  padding: 12px 25px;
+  background-color: #ff9800;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #e68900;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Submit Story</h1>
+
+    <label for="title">Title:</label>
+    <input type="text" id="title" placeholder="Your story title" required>
+
+    <label for="author">Author:</label>
+    <input type="text" id="author" placeholder="Your name" required>
+    Profile Picture:
+<input type="file" accept="image/*" id="profilePicInput">
+<br><br>
+<img id="previewPic" style="width:120px; height:120px; object-fit:cover; border-radius:50%; display:none; border:2px solid #ccc;" />
+<br><br>
+
+
+    <label for="category">Category:</label>
+    <select id="category" required>
+        <option value="">Select category</option>
+        <option value="Horror">Horror</option>
+        <option value="Love">Love</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Motivation">Motivation</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Real Life">Real Life</option>
+    </select>
+
+    <label for="story">Story:</label>
+    <textarea id="story" rows="8" placeholder="Write your story here..." required></textarea>
+
+    <button onclick="submitStory()">Submit Story</button>
+</div>
+
+<script>
+function submitStory() {
+    const title = document.getElementById("title").value.trim();
+    const author = document.getElementById("author").value.trim();
+    const category = document.getElementById("category").value;
+    const storyText = document.getElementById("story").value.trim();
+
+    if (!title || !author || !category || !storyText) {
+        alert("Please fill out all fields.");
+        return;
+    }
+
+    let stories = JSON.parse(localStorage.getItem("stories")) || [];
+
+    let newStory = {
+        title: title,
+        author: author,
+        category: category,
+        story: storyText,
+        likes: 0,
+        loves: 0,
+        dislikes: 0,
+        laughs: 0,
+        cries: 0,
+        comments: 0,
+        shares: 0,
+        favorites: 0,
+        timestamp: Date.now()
+    };
+
+    stories.push(newStory);
+    localStorage.setItem("stories", JSON.stringify(stories));
+
+    alert("Your story has been submitted!");
+    window.location.href = "index.html"; // redirect to homepage
+}
+</script>
+
+</body>
+</html>

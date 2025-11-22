@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard - StoryHub</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 30px; }
+    table { width: 90%; margin: auto; border-collapse: collapse; background: white; box-shadow:0 0 10px rgba(0,0,0,0.1); border-radius:8px; overflow:hidden; }
+    th, td { padding:12px 15px; text-align:left; }
+    th { background:#007bff; color:white; }
+    tr:nth-child(even){background:#f2f2f2;}
+    tr:hover{background:#e0e0e0; cursor:pointer;}
+body {
+  background: linear-gradient(135deg, #ffecd2, #fcb69f); /* soft peach-orange gradient */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.9); /* slight transparency for table */
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: rgba(255, 152, 0, 0.8); /* optional: header highlight */
+  color: white;
+}
+
+tr:hover {
+  background-color: rgba(255, 200, 150, 0.3); /* highlight row on hover */
+}
+</style>
+
+</style>
+</head>
+<body>
+
+<h1>Leaderboard - Top Stories</h1>
+<table id="leaderboard">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Total Reactions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+let stories = JSON.parse(localStorage.getItem("stories")) || [];
+let tbody = document.querySelector("#leaderboard tbody");
+
+if(stories.length===0){
+    tbody.innerHTML="<tr><td colspan='5'>No stories submitted yet.</td></tr>";
+} else {
+    stories.forEach(s => s.totalReactions=(s.likes||0)+(s.loves||0)+(s.laughs||0)+(s.cries||0));
+    let sorted = stories.sort((a,b)=>b.totalReactions - a.totalReactions);
+    tbody.innerHTML="";
+    sorted.forEach((s,i)=>{
+        tbody.innerHTML += `
+        <tr onclick="window.location.href='story.html?id=${stories.indexOf(s)}'">
+            <td>${i+1}</td>
+            <td>${s.title}</td>
+            <td>${s.author}</td>
+            <td>${s.category}</td>
+            <td>${s.totalReactions}</td>
+        </tr>`;
+    });
+}
+</script>
+
+</body>
+</html>
